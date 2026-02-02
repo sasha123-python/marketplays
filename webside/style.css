@@ -1,0 +1,219 @@
+/* =========================
+   VARIABLES
+========================= */
+:root {
+    --black: #0f0f0f;
+    --dark: #1a1a1a;
+    --gray: #2a2a2a;
+    --light-gray: #eaeaea;
+    --white: #ffffff;
+
+    --accent: #25d366; /* WhatsApp green */
+}
+
+/* =========================
+   RESET
+========================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* =========================
+   BODY
+========================= */
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: var(--white);
+    color: var(--black);
+    line-height: 1.6;
+}
+
+/* =========================
+   CONTAINER
+========================= */
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 60px 20px;
+}
+
+/* =========================
+   HERO
+========================= */
+.hero {
+    min-height: 85vh;
+    background:
+        linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+        url("images/hero.jpg") center/cover no-repeat;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    color: var(--white);
+}
+
+.hero h1 {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.hero .btn {
+    margin-top: 25px;
+}
+
+/* =========================
+   BUTTON
+========================= */
+.btn {
+    display: inline-block;
+    padding: 14px 32px;
+
+    background: var(--white);
+    color: var(--black);
+
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+
+    transition: all 0.25s ease;
+}
+
+.btn:hover {
+    background: var(--light-gray);
+}
+
+/* =========================
+   SECTION
+========================= */
+section {
+    background: var(--white);
+}
+
+section h2 {
+    font-size: 2.2rem;
+    margin-bottom: 20px;
+}
+
+/* =========================
+   ABOUT
+========================= */
+.about {
+    background: #f8f8f8;
+}
+
+/* =========================
+   SERVICES
+========================= */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 25px;
+}
+
+.service-card {
+    background: var(--white);
+    border-radius: 16px;
+    overflow: hidden;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    transition: transform 0.25s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-6px);
+}
+
+.service-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.service-card .content {
+    padding: 20px;
+}
+
+.service-card h3 {
+    margin-bottom: 10px;
+}
+
+/* =========================
+   PRICES
+========================= */
+.prices {
+    background: #f8f8f8;
+}
+
+.price-list {
+    display: grid;
+    gap: 12px;
+}
+
+.price-item {
+    background: var(--white);
+    padding: 16px 20px;
+    border-radius: 12px;
+
+    display: flex;
+    justify-content: space-between;
+
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+}
+
+/* =========================
+   FOOTER
+========================= */
+footer {
+    background: var(--black);
+    color: var(--white);
+    text-align: center;
+    padding: 25px;
+}
+
+/* =========================
+   WHATSAPP BUTTON
+========================= */
+.whatsapp {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+
+    background: var(--accent);
+    color: var(--white);
+
+    padding: 15px 26px;
+    border-radius: 50px;
+
+    font-weight: 600;
+    text-decoration: none;
+
+    box-shadow: 0 8px 20px rgba(37, 211, 102, 0.35);
+    transition: all 0.25s ease;
+}
+
+.whatsapp:hover {
+    background: #20bd5a;
+    transform: translateY(-2px);
+}
+
+/* =========================
+   MOBILE
+========================= */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2.2rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+}

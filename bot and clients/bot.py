@@ -41,7 +41,7 @@ async def finish(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_data[user_id]["date"]
     )
 
-    await update.message.reply_text("¡Listo! Estás registrado. ✂️")
+    await update.message.reply_text("¡Listo! Estás registrado.")
     return ConversationHandler.END
 
 

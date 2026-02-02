@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>MP Construcción y Reformas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        :root {
+            --black: #0f0f0f;
+            --dark: #1c1c1c;
+            --gray: #2e2e2e;
+            --light: #f5f5f5;
+            --white: #ffffff;
+            --accent: #25d366;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--light);
+            color: var(--black);
+            line-height: 1.6;
+        }
+
+        section {
+            padding: 70px 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+        }
+
+        /* HERO */
+        .hero {
+            min-height: 90vh;
+            background:
+                linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,.6)),
+                url("images/hero.jpg") center / cover no-repeat;
+            color: var(--white);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: .9;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 14px 34px;
+            background: var(--white);
+            color: var(--black);
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 40px;
+            transition: .3s;
+        }
+
+        .btn:hover {
+            background: #e0e0e0;
+        }
+
+        /* ABOUT */
+        .about {
+            background: var(--white);
+        }
+
+        .about p {
+            max-width: 800px;
+            font-size: 1.05rem;
+            color: #444;
+        }
+
+        /* SERVICES */
+        .services {
+            background: #f0f0f0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,.08);
+            transition: transform .3s;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+        }
+
+        .card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .card .content {
+            padding: 20px;
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: #555;
+            font-size: .95rem;
+        }
+
+        /* PRICES */
+        .prices {
+            background: var(--white);
+        }
+
+        .price-list {
+            margin-top: 30px;
+            display: grid;
+            gap: 15px;
+        }
+
+        .price-item {
+            background: #fafafa;
+            padding: 16px 22px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: 500;
+        }
+
+        /* FOOTER */
+        footer {
+            background: var(--black);
+            color: var(--white);
+            text-align: center;
+            padding: 25px;
+            font-size: .9rem;
+        }
+
+        /* WHATSAPP */
+        .whatsapp {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            background: var(--accent);
+            color: var(--white);
+            padding: 14px 26px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(37,211,102,.35);
+            transition: .3s;
+        }
+
+        .whatsapp:hover {
+            background: #1ebc5a;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+    <div>
+        <h1>MP Construcción y Reformas</h1>
+        <p>Reformas y construcción llave en mano<br>Barcelona · Badalona · Autónomo</p>
+        <a href="#contacto" class="btn">Solicitar presupuesto</a>
+    </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about">
+    <div class="container">
+        <h2>Sobre mí</h2>
+        <p>
+            Soy Marin Pinzaru, maestro universal autónomo con experiencia en construcción y reformas integrales.
+            Trabajo de forma legal, cumpliendo plazos y cuidando cada detalle del proyecto.
+            Realizo reformas completas de pisos, casas, locales comerciales y hoteles.
+        </p>
+    </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services">
+    <div class="container">
+        <h2>Servicios</h2>
+
+        <div class="grid">
+            <div class="card">
+                <img src="images/bathroom.jpg">
+                <div class="content">
+                    <h3>Reformas de baños</h3>
+                    <p>Baños modernos, funcionales y duraderos.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <img src="images/construction.jpg">
+                <div class="content">
+                    <h3>Reformas integrales</h3>
+                    <p>Pisos, casas, locales y hoteles llave en mano.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <img src="images/tools.jpg">
+                <div class="content">
+                    <h3>Trabajos técnicos</h3>
+                    <p>Fontanería, electricidad, pladur, pintura y alicatado.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PRICES -->
+<section class="prices">
+    <div class="container">
+        <h2>Precios orientativos</h2>
+
+        <div class="price-list">
+            <div class="price-item"><span>Demolición</span><span>5–10 €/m²</span></div>
+            <div class="price-item"><span>Alicatado</span><span>20–40 €/m²</span></div>
+            <div class="price-item"><span>Pintura</span><span>6–12 €/m²</span></div>
+            <div class="price-item"><span>Electricidad</span><span>30–60 € / punto</span></div>
+            <div class="price-item"><span>Fontanería</span><span>40–70 € / punto</span></div>
+        </div>
+
+        <p style="margin-top:15px;color:#666;font-size:.9rem;">
+            *Precios orientativos. Presupuesto final tras visita.
+        </p>
+    </div>
+<!-- WhatsApp -->
+</section>
+
+<footer id="contacto">
+    MP Construcción y Reformas · Barcelona & Badalona
+</footer>
+
+<a class="whatsapp" href="https://wa.me/34602605353" target="_blank">WhatsApp</a>
+
+</body>
+</html>
