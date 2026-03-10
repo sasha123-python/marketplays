@@ -1,0 +1,8 @@
+Requirement already satisfied: fastapi in ./.venv/lib/python3.12/site-packages (0.115.0)
+Requirement already satisfied: starlette<0.39.0,>=0.37.2 in ./.venv/lib/python3.12/site-packages (from fastapi) (0.38.6)
+Requirement already satisfied: pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4 in ./.venv/lib/python3.12/site-packages (from fastapi) (2.9.2)
+Requirement already satisfied: typing-extensions>=4.8.0 in ./.venv/lib/python3.12/site-packages (from fastapi) (4.15.0)
+Requirement already satisfied: annotated-types>=0.6.0 in ./.venv/lib/python3.12/site-packages (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi) (0.7.0)
+Requirement already satisfied: pydantic-core==2.23.4 in ./.venv/lib/python3.12/site-packages (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi) (2.23.4)
+Requirement already satisfied: anyio<5,>=3.4.0 in ./.venv/lib/python3.12/site-packages (from starlette<0.39.0,>=0.37.2->fastapi) (4.12.1)
+Requirement already satisfied: idna>=2.8 in ./.venv/lib/python3.12/site-packages (from anyio<5,>=3.4.0->starlette<0.39.0,>=0.37.2->fastapi) (3.11)
