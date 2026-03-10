@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ObraMap Barcelona</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Google Fonts: Syne (headings) + Inter (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Design tokens ───────────────────────────────────────────── */
+    :root {
+      --bg:       #0f0f0f;
+      --surface:  #1a1a1a;
+      --surface2: #242424;
+      --border:   #2e2e2e;
+      --accent:   #f5a623;
+      --red:      #e8380e;
+      --text:     #f0ede8;
+      --dim:      #888;
+      --dimmer:   #555;
+      --green:    #22c55e;
+      --fh:       'Syne', sans-serif;
+      --fb:       'Inter', sans-serif;
+      --r:        10px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--fb);
+      background: var(--bg);
+      color: var(--text);
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Topbar ──────────────────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 20px;
+      height: 56px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-family: var(--fh);
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      white-space: nowrap;
+    }
+    .logo span { color: var(--accent); }
+
+    .filters {
+      display: flex;
+      gap: 7px;
+      flex: 1;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .filter-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--dim);
+      border-radius: 20px;
+      padding: 5px 13px;
+      font-family: var(--fb);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all .15s;
+    }
+    .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+    .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 600; }
+
+    .topbar-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 15px;
+      border-radius: 8px;
+      font-family: var(--fb);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all .15s;
+      text-decoration: none;
+    }
+    .btn-ghost  { background: transparent; color: var(--dim); border: 1px solid var(--border); }
+    .btn-ghost:hover { color: var(--text); border-color: #555; }
+    .btn-primary { background: var(--accent); color: #000; font-weight: 600; }
+    .btn-primary:hover { background: #fbb73a; }
+
+    /* ── Layout ──────────────────────────────────────────────────── */
+    .main { display: flex; flex: 1; overflow: hidden; }
+
+    /* ── Sidebar ─────────────────────────────────────────────────── */
+    .sidebar {
+      width: 330px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .sidebar-head {
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-label {
+      font-family: var(--fh);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--dim);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .job-count {
+      font-size: 26px;
+      font-family: var(--fh);
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1.1;
+      margin-top: 3px;
+    }
+    .job-count small { font-size: 13px; font-weight: 400; color: var(--dim); font-family: var(--fb); }
+
+    .jobs-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    /* ── Job card ────────────────────────────────────────────────── */
+    .job-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 13px 15px;
+      margin-bottom: 7px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .job-card:hover { border-color: var(--accent); transform: translateX(2px); }
+    .job-card.active { border-color: var(--accent); background: #1f1c14; }
+
+    .card-top { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 7px; }
+    .card-title { font-family: var(--fh); font-size: 13px; font-weight: 600; line-height: 1.3; flex: 1; }
+    .card-price { font-family: var(--fh); font-size: 13px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+
+    .card-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+    .tag { font-size: 10px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; }
+    .tag-cat { background: #1a2a1a; color: #4ade80; border: 1px solid #2a3a2a; }
+    .tag-dist { background: #1a1f2e; color: #7eb3f5; border: 1px solid #2a2f3e; }
+
+    .card-desc {
+      font-size: 12px; color: var(--dim); line-height: 1.5; margin-top: 7px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .card-date { font-size: 11px; color: var(--dimmer); margin-top: 7px; }
+
+    /* ── Map ─────────────────────────────────────────────────────── */
+    #map { flex: 1; background: #1a1a1a; }
+
+    /* ── Detail panel ────────────────────────────────────────────── */
+    .detail {
+      position: absolute; right: 20px; bottom: 20px; width: 350px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; padding: 22px; z-index: 800;
+      box-shadow: 0 4px 24px rgba(0,0,0,.5);
+      transform: translateY(20px); opacity: 0; pointer-events: none;
+      transition: all .25s cubic-bezier(0.34,1.56,0.64,1);
+      max-height: 70vh; overflow-y: auto;
+    }
+    .detail.open { transform: translateY(0); opacity: 1; pointer-events: all; }
+
+    .detail-close {
+      position: absolute; top: 10px; right: 10px;
+      background: var(--surface2); border: none; color: var(--dim);
+      width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+      font-size: 14px; display: flex; align-items: center; justify-content: center;
+    }
+    .detail-close:hover { color: var(--text); }
+
+    .detail-cat { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+    .detail-title { font-family: var(--fh); font-size: 18px; font-weight: 700; line-height: 1.25; margin-bottom: 10px; }
+    .detail-price { font-family: var(--fh); font-size: 26px; font-weight: 800; color: var(--accent); margin-bottom: 14px; }
+    .detail-price small { font-size: 13px; font-weight: 400; color: var(--dim); font-family: var(--fb); }
+    .detail-desc { font-size: 13px; line-height: 1.6; color: #bbb; margin-bottom: 16px; }
+    .detail-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+    .detail-actions { display: flex; flex-direction: column; gap: 7px; }
+
+    /* ── Modals ──────────────────────────────────────────────────── */
+    .overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7);
+      z-index: 2000; align-items: center; justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    .overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px; width: 100%; max-width: 420px;
+      max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 24px rgba(0,0,0,.5);
+    }
+
+    .modal-title { font-family: var(--fh); font-size: 20px; font-weight: 700; margin-bottom: 22px; }
+    .modal-title span { color: var(--accent); }
+
+    .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+    .tab { flex: 1; text-align: center; padding: 9px; font-size: 14px; font-weight: 500; color: var(--dim); cursor: pointer; border-bottom: 2px solid transparent; transition: all .15s; }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    .fg { margin-bottom: 14px; }
+    .fl { display: block; font-size: 11px; font-weight: 600; color: var(--dim); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 5px; }
+    .fi {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); padding: 9px 13px;
+      font-family: var(--fb); font-size: 14px; transition: border .15s; outline: none;
+    }
+    .fi:focus { border-color: var(--accent); }
+    select.fi { cursor: pointer; appearance: none; }
+    textarea.fi { resize: vertical; min-height: 75px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+    .mf { display: flex; gap: 9px; margin-top: 20px; }
+    .mf .btn { flex: 1; justify-content: center; }
+
+    /* ── NEW: Google button ──────────────────────────────────────── */
+    .auth-divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 18px 0;
+    }
+    .auth-divider hr {
+      flex: 1; border: none; border-top: 1px solid var(--border);
+    }
+    .auth-divider span {
+      color: var(--dimmer); font-size: 12px; white-space: nowrap;
+    }
+
+    .google-btn {
+      width: 100%; padding: 10px 16px;
+      background: #fff; border: 1px solid #dadce0; border-radius: 8px;
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 10px;
+      font-size: 14px; font-family: var(--fb); color: #3c4043;
+      transition: background .15s, box-shadow .15s;
+    }
+    .google-btn:hover {
+      background: #f7f8f8; box-shadow: 0 1px 3px rgba(0,0,0,.15);
+    }
+
+    /* ── Toast ───────────────────────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 28px; left: 50%; z-index: 9999;
+      transform: translateX(-50%) translateY(70px);
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 11px 22px; font-size: 13px;
+      transition: transform .3s cubic-bezier(0.34,1.56,0.64,1); pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error   { border-color: var(--red);   color: #ff8070; }
+
+    /* ── Loading ─────────────────────────────────────────────────── */
+    .loading {
+      position: absolute; inset: 0; background: var(--bg);
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; z-index: 5000; transition: opacity .4s;
+    }
+    .loading.out { opacity: 0; pointer-events: none; }
+
+    .spin {
+      width: 38px; height: 38px; border: 3px solid var(--border);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin .7s linear infinite; margin-bottom: 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-txt { font-family: var(--fh); font-size: 13px; color: var(--dim); }
+
+    /* ── Leaflet popup override ───────────────────────────────────── */
+    .leaflet-popup-content-wrapper {
+      background: var(--surface) !important; border: 1px solid var(--border) !important;
+      border-radius: 10px !important; box-shadow: 0 4px 20px rgba(0,0,0,.5) !important;
+      color: var(--text) !important;
+    }
+    .leaflet-popup-tip { background: var(--surface) !important; }
+    .popup-title { font-family: var(--fh); font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .popup-price { color: var(--accent); font-weight: 600; font-size: 12px; margin-bottom: 8px; }
+    .popup-btn {
+      display: block; width: 100%; background: var(--accent); color: #000;
+      border: none; border-radius: 6px; padding: 7px; font-size: 12px;
+      font-weight: 600; cursor: pointer; font-family: var(--fb);
+    }
+    .popup-btn:hover { background: #fbb73a; }
+
+    /* ── User badge ──────────────────────────────────────────────── */
+    .user-badge { display: flex; align-items: center; gap: 7px; padding: 3px 11px 3px 4px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; }
+    .avatar { width: 27px; height: 27px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; color: #000; }
+    .uname { font-size: 13px; font-weight: 500; }
+
+    /* ── Empty state ─────────────────────────────────────────────── */
+    .empty { text-align: center; padding: 36px 16px; color: var(--dimmer); }
+    .empty-icon { font-size: 30px; margin-bottom: 10px; }
+    .empty-txt { font-size: 12px; line-height: 1.5; }
+
+    /* Fix: custom marker clickability */
+    .custom-marker { background: none !important; border: none !important; }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .detail  { left: 10px; right: 10px; width: auto; bottom: 10px; }
+      .filters { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading screen -->
+<div class="loading" id="loading">
+  <div class="spin"></div>
+  <div class="loading-txt">Cargando obras en Barcelona…</div>
+</div>
+
+<!-- Topbar -->
+<header class="topbar">
+  <div class="logo">Obra<span>Map</span></div>
+
+  <div class="filters">
+    <button class="filter-btn active" data-cat="">Todos</button>
+    <button class="filter-btn" data-cat="renovation">🏗 Reformas</button>
+    <button class="filter-btn" data-cat="electrical">⚡ Electricidad</button>
+    <button class="filter-btn" data-cat="plumbing">🔧 Fontanería</button>
+    <button class="filter-btn" data-cat="painting">🎨 Pintura</button>
+    <button class="filter-btn" data-cat="carpentry">🪵 Carpintería</button>
+    <button class="filter-btn" data-cat="tiling">🪟 Suelos</button>
+    <button class="filter-btn" data-cat="roofing">🏠 Cubiertas</button>
+    <button class="filter-btn" data-cat="demolition">⛏ Demolición</button>
+  </div>
+
+  <div class="topbar-actions" id="topbarActions">
+    <button class="btn btn-primary" onclick="openAuth()">Acceder</button>
+    <button class="btn btn-ghost"   onclick="openPost()">+ Publicar obra</button>
+  </div>
+</header>
+
+<!-- Main -->
+<div class="main">
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-label">Obras activas</div>
+      <div class="job-count"><span id="countNum">–</span><small> trabajos</small></div>
+    </div>
+    <div class="jobs-list" id="jobsList">
+      <div class="empty"><div class="empty-icon">🔍</div><div class="empty-txt">Cargando…</div></div>
+    </div>
+  </aside>
+  <div id="map"></div>
+</div>
+
+<!-- Detail panel -->
+<div class="detail" id="detail">
+  <button class="detail-close" onclick="closeDetail()">✕</button>
+  <div class="detail-cat"     id="dCat"></div>
+  <div class="detail-title"   id="dTitle"></div>
+  <div class="detail-price"   id="dPrice"></div>
+  <p   class="detail-desc"    id="dDesc"></p>
+  <div class="detail-meta"    id="dMeta"></div>
+  <div class="detail-actions" id="dActions"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     Auth modal — MODIFIED: added Google button in both tabs
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="overlay" id="authOverlay">
+  <div class="modal">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('login')">Iniciar sesión</div>
+      <div class="tab"        onclick="switchTab('register')">Crear cuenta</div>
+    </div>
+
+    <!-- Login tab -->
+    <div class="tab-pane active" id="tLogin">
+      <div class="fg"><label class="fl">Email</label><input class="fi" type="email" id="lEmail" placeholder="tu@email.com" /></div>
+      <div class="fg"><label class="fl">Contraseña</label><input class="fi" type="password" id="lPass" placeholder="••••••••" /></div>
+      <div class="mf">
+        <button class="btn btn-ghost"   onclick="closeAuth()">Cancelar</button>
+        <button class="btn btn-primary" onclick="doLogin()">Entrar</button>
+      </div>
+
+      <!-- NEW: Google sign-in -->
+      <div class="auth-divider"><hr><span>o continuar con</span><hr></div>
+      <button type="button" class="google-btn" onclick="loginWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Iniciar sesión con Google
+      </button>
+    </div>
+
+    <!-- Register tab -->
+    <div class="tab-pane" id="tReg">
+      <div class="fg"><label class="fl">Nombre</label><input class="fi" type="text" id="rName" placeholder="Carlos Pérez" /></div>
+      <div class="fg"><label class="fl">Email</label><input class="fi" type="email" id="rEmail" placeholder="tu@email.com" /></div>
+      <div class="fg"><label class="fl">Contraseña</label><input class="fi" type="password" id="rPass" placeholder="Mínimo 8 caracteres" /></div>
+      <div class="fg">
+        <label class="fl">Soy…</label>
+        <select class="fi" id="rRole">
+          <option value="client">Cliente / Propietario (publica obras)</option>
+          <option value="contractor">Contratista / Empresa (busca obras)</option>
+        </select>
+      </div>
+      <div class="mf">
+        <button class="btn btn-ghost"   onclick="closeAuth()">Cancelar</button>
+        <button class="btn btn-primary" onclick="doRegister()">Registrarme</button>
+      </div>
+
+      <!-- NEW: Google sign-up -->
+      <div class="auth-divider"><hr><span>o continuar con</span><hr></div>
+      <button type="button" class="google-btn" onclick="loginWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Registrarme con Google
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Post job modal -->
+<div class="overlay" id="postOverlay">
+  <div class="modal">
+    <div class="modal-title">Publicar <span>obra</span></div>
+    <div class="fg"><label class="fl">Título</label><input class="fi" type="text" id="pTitle" placeholder="Ej: Reforma baño 8m² en Eixample" /></div>
+    <div class="fg"><label class="fl">Descripción</label><textarea class="fi" id="pDesc" rows="3" placeholder="Describe el trabajo con detalle…"></textarea></div>
+    <div class="form-row">
+      <div class="fg">
+        <label class="fl">Categoría</label>
+        <select class="fi" id="pCat">
+          <option value="renovation">Reformas</option>
+          <option value="electrical">Electricidad</option>
+          <option value="plumbing">Fontanería</option>
+          <option value="painting">Pintura</option>
+          <option value="carpentry">Carpintería</option>
+          <option value="tiling">Suelos</option>
+          <option value="roofing">Cubiertas</option>
+          <option value="demolition">Demolición</option>
+          <option value="other">Otros</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Presupuesto (€)</label><input class="fi" type="number" id="pPrice" placeholder="2500" /></div>
+    </div>
+    <div class="form-row">
+      <div class="fg">
+        <label class="fl">Distrito</label>
+        <select class="fi" id="pDistrict">
+          <option>Eixample</option><option>Gràcia</option><option>Sant Martí</option>
+          <option>Sants-Montjuïc</option><option>Sarrià-Sant Gervasi</option>
+          <option>Horta-Guinardó</option><option>Nou Barris</option>
+          <option>Sant Andreu</option><option>Les Corts</option><option>Ciutat Vella</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Email contacto</label><input class="fi" type="email" id="pEmail" /></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-ghost"   onclick="closePost()">Cancelar</button>
+      <button class="btn btn-primary" onclick="doPost()">Publicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Contact modal -->
+<div class="overlay" id="contactOverlay">
+  <div class="modal">
+    <div class="modal-title">Contactar <span>cliente</span></div>
+    <p id="contactJobTitle" style="font-size:13px; color: var(--dim); margin-bottom: 18px;"></p>
+    <div id="contactForm">
+    <div class="fg"><label class="fl">Mensaje</label><textarea class="fi" id="contactMsg" rows="4" placeholder="Preséntate y explica por qué eres el mejor candidato…"></textarea></div>
+    <div class="mf">
+      <button class="btn btn-ghost"   onclick="closeContact()">Cancelar</button>
+      <button class="btn btn-primary" onclick="doContact()">Enviar</button>
+      </div>
+    </div>
+    <div id="contactResult" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Scripts (order matters) -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/map.js"></script>
+</body>
+</html>
