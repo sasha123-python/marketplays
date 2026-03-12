@@ -1,0 +1,9 @@
+.idea/
+.venv/
+__pycache__/
+*.pyc
+*.db
+.env
+portfolio/
+webside/
+bot and clients/

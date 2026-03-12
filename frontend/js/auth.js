@@ -203,18 +203,17 @@ function updateTopbar() {
       <div class="user-badge">
         <div class="avatar">${_user.name.charAt(0).toUpperCase()}</div>
         <span class="uname">${_user.name}</span>
-        <span style="font-size:10px;color:var(--accent);font-weight:600;text-transform:uppercase;margin-left:2px">${isClient ? "cliente" : "contratista"}</span>
       </div>
       ${isClient
-        ? `<button class="btn btn-ghost" onclick="openPost()">+ Publicar obra</button>`
-        : `<span style="font-size:12px;color:var(--dim);padding:0 8px">Busca obras en el mapa</span>`
+        ? `<button class="btn btn-ghost" onclick="openPost()">+ Publicar</button>`
+        : ``
       }
       <button class="btn btn-ghost" onclick="doLogout()">Salir</button>
     `;
   } else {
     el.innerHTML = `
       <button class="btn btn-primary" onclick="openAuth()">Acceder</button>
-      <button class="btn btn-ghost"   onclick="openPost()">+ Publicar obra</button>
+      <button class="btn btn-ghost"   onclick="openPost()">+ Publicar</button>
     `;
   }
 }
